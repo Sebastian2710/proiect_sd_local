@@ -1,0 +1,19 @@
+.not-found {
+  min-height: 100dvh;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 1rem;
+  text-align: center;
+  padding: 1.5rem;
+  max-width: 42rem;
+  margin-inline: auto;
+}
+
+.not-found p {
+  margin: 0;
+}
+
+.not-found a {
+  font-weight: 600;
+}

@@ -6,16 +6,7 @@ import { Person } from '../../models/person.model';
 @Component({
   selector: 'app-confirm-delete-dialog',
   imports: [MatDialogModule, MatButtonModule],
-  template: `
-    <h2 mat-dialog-title>Confirm Delete</h2>
-    <mat-dialog-content>
-      <p>Are you sure you want to delete <strong>{{ data.person.name }}</strong>? This action cannot be undone.</p>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button (click)="cancel()">Cancel</button>
-      <button mat-flat-button color="warn" (click)="confirm()">Delete</button>
-    </mat-dialog-actions>
-  `,
+  templateUrl: './confirm-delete-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ConfirmDeleteDialogComponent {
@@ -30,4 +21,3 @@ export class ConfirmDeleteDialogComponent {
     this.dialogRef.close(false);
   }
 }
-

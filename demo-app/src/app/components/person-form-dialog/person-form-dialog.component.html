@@ -1,4 +1,4 @@
-<h2 mat-dialog-title>{{ isEditMode() ? 'Edit Person' : 'Create Person' }}</h2>
+<h2 mat-dialog-title>{{ data.title }}</h2>
 
 <mat-dialog-content>
   <form [formGroup]="form" id="person-form" (ngSubmit)="submit()">
@@ -17,8 +17,10 @@
       <input matInput type="number" formControlName="age" autocomplete="off" />
       @if (form.controls.age.hasError('required')) {
         <mat-error>Age is required.</mat-error>
-      } @else if (form.controls.age.hasError('min') || form.controls.age.hasError('max')) {
-        <mat-error>Age must be between 0 and 150.</mat-error>
+      } @else if (form.controls.age.hasError('min')) {
+        <mat-error>Age must be at least 18.</mat-error>
+      } @else if (form.controls.age.hasError('max')) {
+        <mat-error>Age must be less than 200.</mat-error>
       }
     </mat-form-field>
 
@@ -27,12 +29,10 @@
       <input matInput type="email" formControlName="email" autocomplete="email" />
       @if (form.controls.email.hasError('required')) {
         <mat-error>Email is required.</mat-error>
-      } @else if (form.controls.email.hasError('email')) {
-        <mat-error>Please enter a valid email address.</mat-error>
       }
     </mat-form-field>
 
-    @if (!isEditMode()) {
+    @if (data.showPasswordField) {
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Password</mat-label>
         <input
@@ -53,8 +53,6 @@
         </button>
         @if (form.controls.password.hasError('required')) {
           <mat-error>Password is required.</mat-error>
-        } @else if (form.controls.password.hasError('minlength')) {
-          <mat-error>Password must be at least 6 characters.</mat-error>
         }
       </mat-form-field>
     }
@@ -63,8 +61,6 @@
 
 <mat-dialog-actions align="end">
   <button mat-button type="button" (click)="cancel()">Cancel</button>
-  <button mat-flat-button type="submit" form="person-form" (click)="submit()">
-    {{ isEditMode() ? 'Save' : 'Create' }}
-  </button>
+  <button mat-flat-button type="submit" form="person-form">{{ data.submitLabel ?? 'Submit' }}</button>
 </mat-dialog-actions>
 
