@@ -1,4 +1,5 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http'; // Added import
 import { finalize } from 'rxjs';
 import { CreatePersonDto, Person, UpdatePersonDto } from '../../models/person.model';
 import { PersonService } from '../../services/person.service';
@@ -10,6 +11,7 @@ export class PersonListStore {
 
   readonly persons = signal<Person[]>([]);
   readonly hasError = signal(false);
+  readonly errorMsg = signal<string>(''); // NEW: Signal to hold the text
   readonly isLoading = computed(() => this.pendingRequests() > 0);
 
   private beginRequest(): void {
@@ -20,6 +22,18 @@ export class PersonListStore {
     this.pendingRequests.update((count) => Math.max(0, count - 1));
   }
 
+  private handleError(err: HttpErrorResponse): void {
+    this.hasError.set(true);
+
+    const errorData = err.error as Record<string, string>;
+    const textReal =
+      errorData?.['details'] ||
+      Object.values(errorData || {})[0] ||
+      'An unexpected error occurred!';
+
+    this.errorMsg.set(textReal);
+  }
+
   load(): void {
     this.hasError.set(false);
     this.beginRequest();
@@ -28,7 +42,7 @@ export class PersonListStore {
       .pipe(finalize(() => this.endRequest()))
       .subscribe({
         next: (data) => this.persons.set(data),
-        error: () => this.hasError.set(true),
+        error: (err: HttpErrorResponse) => this.handleError(err),
       });
   }
 
@@ -40,7 +54,7 @@ export class PersonListStore {
       .pipe(finalize(() => this.endRequest()))
       .subscribe({
         next: (created) => this.persons.update((list) => [...list, created]),
-        error: () => this.hasError.set(true),
+        error: (err: HttpErrorResponse) => this.handleError(err),
       });
   }
 
@@ -60,7 +74,7 @@ export class PersonListStore {
           this.persons.update((list) =>
             list.map((person) => (person.id === updated.id ? updated : person)),
           ),
-        error: () => this.hasError.set(true),
+        error: (err: HttpErrorResponse) => this.handleError(err),
       });
   }
 
@@ -73,7 +87,7 @@ export class PersonListStore {
       .subscribe({
         next: () =>
           this.persons.update((list) => list.filter((person) => person.id !== id)),
-        error: () => this.hasError.set(true),
+        error: (err: HttpErrorResponse) => this.handleError(err),
       });
   }
 }

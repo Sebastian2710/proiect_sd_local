@@ -3,6 +3,7 @@ package com.andrei.demo.service;
 import com.andrei.demo.config.ValidationException;
 import com.andrei.demo.model.Person;
 import com.andrei.demo.model.PersonCreateDTO;
+import com.andrei.demo.model.Role;
 import com.andrei.demo.repository.PersonRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,13 +21,17 @@ public class PersonService {
         return personRepository.findAll();
     }
 
-    public Person addPerson(PersonCreateDTO personDTO) {
-        Person person = new Person();
+    public Person addPerson(PersonCreateDTO personDTO) throws ValidationException {
+        if (personRepository.findByEmail(personDTO.getEmail()).isPresent()) {
+            throw new ValidationException("A user with the email " + personDTO.getEmail() + " already exists.");
+        }
 
+        Person person = new Person();
         person.setName(personDTO.getName());
         person.setAge(personDTO.getAge());
         person.setEmail(personDTO.getEmail());
         person.setPassword(personDTO.getPassword());
+        person.setRole(Role.STUDENT);
 
         return personRepository.save(person);
     }
@@ -42,9 +47,16 @@ public class PersonService {
 
         existingPerson.setName(person.getName());
         existingPerson.setAge(person.getAge());
-        existingPerson.setEmail(person.getEmail());
+        if (person.getEmail() != null && !person.getEmail().equals(existingPerson.getEmail())) {
+            if (personRepository.findByEmail(person.getEmail()).isPresent()) {
+                throw new ValidationException("A user with the email " + person.getEmail() + " already exists.");
+            }
+            existingPerson.setEmail(person.getEmail());
+        }
         existingPerson.setPassword(person.getPassword());
-
+        if (person.getRole() != null) {
+            existingPerson.setRole(person.getRole());
+        }
         return personRepository.save(existingPerson);
     }
 
@@ -75,5 +87,30 @@ public class PersonService {
     public Person getPersonById(UUID uuid) {
         return personRepository.findById(uuid).orElseThrow(
                 () -> new IllegalStateException("Person with id " + uuid + " not found"));
+    }
+
+    public Person patchPerson(UUID uuid, Person person) throws ValidationException {
+        Person existingPerson = personRepository.findById(uuid)
+                .orElseThrow(() -> new ValidationException("Person with id " + uuid + " not found"));
+
+        if (person.getEmail() != null && !person.getEmail().equals(existingPerson.getEmail())) {
+            if (personRepository.findByEmail(person.getEmail()).isPresent()) {
+                throw new ValidationException("A user with the email " + person.getEmail() + " already exists.");
+            }
+            existingPerson.setEmail(person.getEmail());
+        }
+        if (person.getName() != null) {
+            existingPerson.setName(person.getName());
+        }
+        if (person.getAge() != null) {
+            existingPerson.setAge(person.getAge());
+        }
+        if (person.getPassword() != null) {
+            existingPerson.setPassword(person.getPassword());
+        }
+        if (person.getRole() != null) {
+            existingPerson.setRole(person.getRole());
+        }
+        return personRepository.save(existingPerson);
     }
 }

@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-
 @RestController
 @AllArgsConstructor
 @CrossOrigin
@@ -36,13 +35,13 @@ public class PersonController {
     @PostMapping("/person")
     public Person addPerson(
             @Valid @RequestBody PersonCreateDTO personDTO
-    ) {
+    ) throws ValidationException {
         return personService.addPerson(personDTO);
     }
 
     @PutMapping("/person/{uuid}")
     public Person updatePerson(@PathVariable UUID uuid,
-                               @RequestBody Person person)
+                               @Valid @RequestBody Person person)
             throws ValidationException {
         return personService.updatePerson(uuid, person);
     }
@@ -52,4 +51,10 @@ public class PersonController {
         personService.deletePerson(uuid);
     }
 
+    @PatchMapping("/person/{uuid}")
+    public Person patchPerson(@PathVariable UUID uuid,
+                              @RequestBody Person person)
+            throws ValidationException {
+        return personService.patchPerson(uuid, person);
+    }
 }

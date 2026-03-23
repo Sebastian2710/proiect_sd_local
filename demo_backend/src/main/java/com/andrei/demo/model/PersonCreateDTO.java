@@ -20,7 +20,6 @@ public class PersonCreateDTO {
                     "lowercase, digit, and special character")
     private String password;
 
-
     @NotNull(message = "Age is required")
     private Integer age;
 
