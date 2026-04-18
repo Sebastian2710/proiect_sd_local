@@ -82,7 +82,18 @@ export class PersonListPageComponent {
     this.dialog
       .open<PersonFormDialogComponent, PersonFormDialogData, PersonFormDialogResult>(
         PersonFormDialogComponent,
-        { data: { title: 'Edit Person', submitLabel: 'Save', initialValue: person } },
+        {
+          data: {
+            title: 'Edit Person',
+            submitLabel: 'Save',
+            initialValue: {
+              name: person.name,
+              age: person.age,
+              email: person.email,
+              role: person.role,
+            },
+          },
+        },
       )
       .afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
