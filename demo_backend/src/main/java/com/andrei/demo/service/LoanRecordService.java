@@ -10,7 +10,8 @@ import com.andrei.demo.repository.LoanRecordRepository;
 import com.andrei.demo.repository.PersonRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -29,7 +30,8 @@ public class LoanRecordService {
 
     public LoanRecord getLoanRecordById(UUID id) {
         return loanRecordRepository.findById(id).orElseThrow(
-                () -> new IllegalStateException("Loan Record with id " + id + " not found")
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Loan Record with id " + id + " not found")
         );
     }
 
@@ -64,9 +66,15 @@ public class LoanRecordService {
         LoanRecord existingRecord = loanRecordRepository.findById(id)
                 .orElseThrow(() -> new ValidationException("Loan Record with id " + id + " not found"));
 
-        existingRecord.setExpectedReturnDate(recordUpdates.getExpectedReturnDate());
-        existingRecord.setActualReturnDate(recordUpdates.getActualReturnDate());
-        existingRecord.setStatus(recordUpdates.getStatus());
+        if (recordUpdates.getExpectedReturnDate() != null) {
+            existingRecord.setExpectedReturnDate(recordUpdates.getExpectedReturnDate());
+        }
+        if (recordUpdates.getActualReturnDate() != null) {
+            existingRecord.setActualReturnDate(recordUpdates.getActualReturnDate());
+        }
+        if (recordUpdates.getStatus() != null) {
+            existingRecord.setStatus(recordUpdates.getStatus());
+        }
 
         return loanRecordRepository.save(existingRecord);
     }

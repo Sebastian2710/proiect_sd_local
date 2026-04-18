@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -82,7 +83,7 @@ class LoanRecordServiceTests {
         UUID uuid = UUID.randomUUID();
         when(loanRecordRepository.findById(uuid)).thenReturn(Optional.empty());
 
-        assertThrows(IllegalStateException.class,
+        assertThrows(ResponseStatusException.class,
                 () -> loanRecordService.getLoanRecordById(uuid));
     }
 

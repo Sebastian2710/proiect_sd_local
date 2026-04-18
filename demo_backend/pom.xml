@@ -92,5 +92,16 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<testResources>
+			<testResource>
+				<directory>src/test/java/resources</directory>
+				<includes>
+					<include>**/*.properties</include>
+					<include>**/*.json</include>
+				</includes>
+			</testResource>
+		</testResources>
 	</build>
+
+
 </project>

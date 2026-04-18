@@ -14,7 +14,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
@@ -116,6 +118,11 @@ public class PersonControllerIntegrationTests {
     }
 
     private String loadFixture(String fileName) throws IOException {
-        return Files.readString(Paths.get(FIXTURE_PATH + fileName));
+        try (InputStream is = getClass().getResourceAsStream("/fixtures/" + fileName)) {
+            if (is == null) {
+                throw new FileNotFoundException("Fixture not found: " + fileName);
+            }
+            return new String(is.readAllBytes());
+        }
     }
 }

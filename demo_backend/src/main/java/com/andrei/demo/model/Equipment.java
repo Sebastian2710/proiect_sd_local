@@ -1,5 +1,6 @@
 package com.andrei.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import lombok.*;
@@ -27,7 +28,10 @@ public class Equipment {
     private Integer stockCount;
 
     @ManyToMany(mappedBy = "equipmentList")
+    @JsonIgnore
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<LoanRecord> loanRecords;
+
+
 }

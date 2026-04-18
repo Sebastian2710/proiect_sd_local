@@ -38,4 +38,8 @@ public class LoanRecord {
             inverseJoinColumns = @JoinColumn(name = "equipment_id")
     )
     private List<Equipment> equipmentList;
+
+    public void setEquipmentList(List<Equipment> equipmentList) {
+        this.equipmentList = equipmentList;
+    }
 }
