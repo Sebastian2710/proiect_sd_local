@@ -1,6 +1,17 @@
-<mat-toolbar color="primary">
-  <span>Person Manager</span>
+<mat-toolbar color="primary" class="page-toolbar">
+  <span class="toolbar-title">Admin Panel</span>
+  <nav class="toolbar-nav" aria-label="Admin navigation">
+    <a mat-button routerLink="/people" routerLinkActive="active-nav-link" aria-current="page">People</a>
+    <a mat-button routerLink="/equipment" routerLinkActive="active-nav-link">Equipment</a>
+    <a mat-button routerLink="/loans" routerLinkActive="active-nav-link">Loans</a>
+  </nav>
+  <span class="toolbar-spacer" aria-hidden="true"></span>
+  <button mat-button type="button" (click)="logout()" aria-label="Sign out">
+    <mat-icon aria-hidden="true">logout</mat-icon>
+    Logout
+  </button>
 </mat-toolbar>
+
 <main class="content">
   <header class="page-header">
     <div>
@@ -52,6 +63,11 @@
         <td mat-cell *matCellDef="let person">{{ person.email }}</td>
       </ng-container>
 
+      <ng-container matColumnDef="role">
+        <th mat-header-cell *matHeaderCellDef scope="col">Role</th>
+        <td mat-cell *matCellDef="let person">{{ person.role }}</td>
+      </ng-container>
+
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef scope="col">Actions</th>
         <td mat-cell *matCellDef="let person">
@@ -86,4 +102,3 @@
     </table>
   </div>
 </main>
-

@@ -4,6 +4,7 @@ export interface Person {
   age: number;
   email: string;
   password: string;
+  role: string;
 }
 
 export type CreatePersonDto = Omit<Person, 'id'>;

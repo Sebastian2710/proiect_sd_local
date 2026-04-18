@@ -1,0 +1,76 @@
+<h2 mat-dialog-title>{{ data.mode === 'create' ? 'Create Loan Record' : 'Update Loan Record' }}</h2>
+
+<mat-dialog-content>
+  @if (data.mode === 'create') {
+    @if (loadingRefs()) {
+      <div class="loading-refs" role="status" aria-live="polite">Loading data…</div>
+    } @else {
+      <form [formGroup]="createForm" id="create-loan-form" (ngSubmit)="submit()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Person</mat-label>
+          <mat-select formControlName="personId" aria-label="Select person">
+            @for (person of persons(); track person.id) {
+              <mat-option [value]="person.id">{{ person.name }} ({{ person.email }})</mat-option>
+            }
+          </mat-select>
+          @if (createForm.controls.personId.hasError('required')) {
+            <mat-error>Person is required.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Equipment</mat-label>
+          <mat-select formControlName="equipmentIds" multiple aria-label="Select equipment">
+            @for (item of equipment(); track item.id) {
+              <mat-option [value]="item.id" [disabled]="item.stockCount === 0">
+                {{ item.name }} (stock: {{ item.stockCount }})
+              </mat-option>
+            }
+          </mat-select>
+          @if (createForm.get('equipmentIds')?.touched && createForm.get('equipmentIds')?.hasError('required')) {
+            <mat-error>At least one equipment item is required.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Expected Return Date</mat-label>
+          <input matInput type="date" formControlName="expectedReturnDate" [min]="today" />
+          @if (createForm.controls.expectedReturnDate.hasError('required')) {
+            <mat-error>Expected return date is required.</mat-error>
+          }
+        </mat-form-field>
+      </form>
+    }
+  } @else {
+    <form [formGroup]="updateForm" id="update-loan-form" (ngSubmit)="submit()">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Status</mat-label>
+        <mat-select formControlName="status" aria-label="Select status">
+          @for (s of statuses; track s) {
+            <mat-option [value]="s">{{ s }}</mat-option>
+          }
+        </mat-select>
+        @if (updateForm.controls.status.hasError('required')) {
+          <mat-error>Status is required.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Expected Return Date</mat-label>
+        <input matInput type="date" formControlName="expectedReturnDate" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Actual Return Date</mat-label>
+        <input matInput type="date" formControlName="actualReturnDate" />
+      </mat-form-field>
+    </form>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="cancel()">Cancel</button>
+  <button mat-flat-button type="button" (click)="submit()" [disabled]="loadingRefs()">
+    {{ data.mode === 'create' ? 'Create' : 'Save' }}
+  </button>
+</mat-dialog-actions>

@@ -25,4 +25,6 @@ public class PersonCreateDTO {
 
     @NotBlank(message = "Email is required")
     private String email;
+
+    private Role role;
 }

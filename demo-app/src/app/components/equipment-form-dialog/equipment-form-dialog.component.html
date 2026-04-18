@@ -1,0 +1,40 @@
+<h2 mat-dialog-title>{{ data.title }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" id="equipment-form" (ngSubmit)="submit()">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name" autocomplete="off" />
+      @if (form.controls.name.hasError('required')) {
+        <mat-error>Name is required.</mat-error>
+      } @else if (form.controls.name.hasError('minlength')) {
+        <mat-error>Name must be at least 2 characters.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Description</mat-label>
+      <textarea matInput formControlName="description" rows="3" autocomplete="off"></textarea>
+      @if (form.controls.description.hasError('required')) {
+        <mat-error>Description is required.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Stock Count</mat-label>
+      <input matInput type="number" formControlName="stockCount" autocomplete="off" />
+      @if (form.controls.stockCount.hasError('required')) {
+        <mat-error>Stock count is required.</mat-error>
+      } @else if (form.controls.stockCount.hasError('min')) {
+        <mat-error>Stock count cannot be negative.</mat-error>
+      }
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="cancel()">Cancel</button>
+  <button mat-flat-button type="submit" form="equipment-form">
+    {{ data.submitLabel ?? 'Submit' }}
+  </button>
+</mat-dialog-actions>

@@ -117,6 +117,25 @@ public class PersonControllerIntegrationTests {
                 .andExpect(jsonPath("$.business_error").exists());
     }
 
+    @Test
+    void testAddPerson_WithAdminRole() throws Exception {
+        String adminJson = """
+            {
+              "name": "Admin Person",
+              "password": "Securepass123!@#",
+              "age": 35,
+              "email": "admin.person@example.com",
+              "role": "ADMIN"
+            }
+            """;
+
+        mockMvc.perform(post("/person")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(adminJson))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.role").value("ADMIN"));
+    }
+
     private String loadFixture(String fileName) throws IOException {
         try (InputStream is = getClass().getResourceAsStream("/fixtures/" + fileName)) {
             if (is == null) {

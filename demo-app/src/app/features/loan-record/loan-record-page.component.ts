@@ -11,16 +11,16 @@ import {
   ConfirmDeleteDialogData,
 } from '../../components/confirm-delete-dialog/confirm-delete-dialog.component';
 import {
-  PersonFormDialogComponent,
-  PersonFormDialogData,
-  PersonFormDialogResult,
-} from '../../components/person-form-dialog/person-form-dialog.component';
-import { CreatePersonDto, Person, UpdatePersonDto } from '../../models/person.model';
+  LoanRecordFormDialogComponent,
+  LoanRecordFormDialogData,
+  LoanRecordFormDialogResult,
+} from '../../components/loan-record-form-dialog/loan-record-form-dialog.component';
+import { LoanRecord, LoanRecordCreateDto, LoanRecordUpdateDto } from '../../models/loan-record.model';
 import { LoginStore } from '../login/login.store';
-import { PersonListStore } from './person-list.store';
+import { LoanRecordStore } from './loan-record.store';
 
 @Component({
-  selector: 'app-person-list-page',
+  selector: 'app-loan-record-page',
   imports: [
     MatTableModule,
     MatButtonModule,
@@ -30,22 +30,30 @@ import { PersonListStore } from './person-list.store';
     RouterLink,
     RouterLinkActive,
   ],
-  templateUrl: './person-list-page.component.html',
-  styleUrl: './person-list-page.component.scss',
+  templateUrl: './loan-record-page.component.html',
+  styleUrl: './loan-record-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PersonListPageComponent {
+export class LoanRecordPageComponent {
   private readonly dialog = inject(MatDialog);
-  private readonly store = inject(PersonListStore);
+  private readonly store = inject(LoanRecordStore);
   private readonly loginStore = inject(LoginStore);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly persons = this.store.persons;
+  protected readonly loanRecords = this.store.loanRecords;
   protected readonly hasError = this.store.hasError;
   protected readonly errorMsg = this.store.errorMsg;
   protected readonly isLoading = this.store.isLoading;
-  protected readonly displayedColumns = ['name', 'age', 'email', 'role', 'actions'];
+  protected readonly displayedColumns = [
+    'person',
+    'loanDate',
+    'expectedReturnDate',
+    'actualReturnDate',
+    'status',
+    'equipment',
+    'actions',
+  ];
 
   constructor() {
     this.store.load();
@@ -56,57 +64,64 @@ export class PersonListPageComponent {
     void this.router.navigate(['/login']);
   }
 
+  protected formatEquipment(record: LoanRecord): string {
+    return record.equipmentList.map((e) => e.name).join(', ') || '—';
+  }
+
   protected openCreateDialog(): void {
-    if (this.isLoading()) {
-      return;
-    }
+    if (this.isLoading()) return;
 
     this.dialog
-      .open<PersonFormDialogComponent, PersonFormDialogData, PersonFormDialogResult>(
-        PersonFormDialogComponent,
-        { data: { title: 'Create Person', submitLabel: 'Create', showPasswordField: true } },
+      .open<LoanRecordFormDialogComponent, LoanRecordFormDialogData, LoanRecordFormDialogResult>(
+        LoanRecordFormDialogComponent,
+        { data: { mode: 'create' } },
       )
       .afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((result) => {
         if (!result) return;
-        this.store.create(result as CreatePersonDto);
+        this.store.create(result as LoanRecordCreateDto);
       });
   }
 
-  protected openEditDialog(person: Person): void {
-    if (this.isLoading()) {
-      return;
-    }
+  protected openEditDialog(record: LoanRecord): void {
+    if (this.isLoading()) return;
 
     this.dialog
-      .open<PersonFormDialogComponent, PersonFormDialogData, PersonFormDialogResult>(
-        PersonFormDialogComponent,
-        { data: { title: 'Edit Person', submitLabel: 'Save', initialValue: person } },
+      .open<LoanRecordFormDialogComponent, LoanRecordFormDialogData, LoanRecordFormDialogResult>(
+        LoanRecordFormDialogComponent,
+        {
+          data: {
+            mode: 'update',
+            initialValue: {
+              status: record.status,
+              expectedReturnDate: record.expectedReturnDate,
+              actualReturnDate: record.actualReturnDate,
+            },
+          },
+        },
       )
       .afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((result) => {
         if (!result) return;
-        this.store.update(person.id, result as UpdatePersonDto);
+        this.store.update(record.id, result as LoanRecordUpdateDto);
       });
   }
 
-  protected openDeleteDialog(person: Person): void {
-    if (this.isLoading()) {
-      return;
-    }
+  protected openDeleteDialog(record: LoanRecord): void {
+    if (this.isLoading()) return;
 
     this.dialog
       .open<ConfirmDeleteDialogComponent, ConfirmDeleteDialogData, boolean>(
         ConfirmDeleteDialogComponent,
-        { data: { name: person.name } },
+        { data: { name: `loan for ${record.person.name}` } },
       )
       .afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((confirmed) => {
         if (!confirmed) return;
-        this.store.remove(person.id);
+        this.store.remove(record.id);
       });
   }
 }

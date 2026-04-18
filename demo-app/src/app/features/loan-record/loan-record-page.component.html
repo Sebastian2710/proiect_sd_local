@@ -1,0 +1,120 @@
+<mat-toolbar color="primary" class="page-toolbar">
+  <span class="toolbar-title">Admin Panel</span>
+  <nav class="toolbar-nav" aria-label="Admin navigation">
+    <a mat-button routerLink="/people" routerLinkActive="active-nav-link">People</a>
+    <a mat-button routerLink="/equipment" routerLinkActive="active-nav-link">Equipment</a>
+    <a mat-button routerLink="/loans" routerLinkActive="active-nav-link" aria-current="page">Loans</a>
+  </nav>
+  <span class="toolbar-spacer" aria-hidden="true"></span>
+  <button mat-button type="button" (click)="logout()" aria-label="Sign out">
+    <mat-icon aria-hidden="true">logout</mat-icon>
+    Logout
+  </button>
+</mat-toolbar>
+
+<main class="content">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">Manage Loan Records</h1>
+      <p class="page-subtitle">View, create, update, and delete loan records.</p>
+    </div>
+    <button
+      mat-flat-button
+      (click)="openCreateDialog()"
+      aria-label="Add new loan record"
+      [disabled]="isLoading()"
+    >
+      <mat-icon>add</mat-icon>
+      New Loan
+    </button>
+  </header>
+
+  @if (isLoading()) {
+    <p class="loading-status" role="status" aria-live="polite">Loading loan records...</p>
+  }
+
+  @if (hasError()) {
+    <div class="error-alert" role="alert" aria-live="assertive">
+      <mat-icon aria-hidden="true">error_outline</mat-icon>
+      {{ errorMsg() }}
+    </div>
+  }
+
+  <div
+    class="table-container"
+    role="region"
+    aria-label="Loan records list"
+    [attr.aria-busy]="isLoading()"
+    [class.is-busy]="isLoading()"
+  >
+    <table mat-table [dataSource]="loanRecords()" aria-label="Loan records table">
+      <ng-container matColumnDef="person">
+        <th mat-header-cell *matHeaderCellDef scope="col">Person</th>
+        <td mat-cell *matCellDef="let record">{{ record.person.name }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="loanDate">
+        <th mat-header-cell *matHeaderCellDef scope="col">Loan Date</th>
+        <td mat-cell *matCellDef="let record">{{ record.loanDate }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="expectedReturnDate">
+        <th mat-header-cell *matHeaderCellDef scope="col">Expected Return</th>
+        <td mat-cell *matCellDef="let record">{{ record.expectedReturnDate }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="actualReturnDate">
+        <th mat-header-cell *matHeaderCellDef scope="col">Actual Return</th>
+        <td mat-cell *matCellDef="let record">{{ record.actualReturnDate ?? '—' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef scope="col">Status</th>
+        <td mat-cell *matCellDef="let record">
+          <span [class]="'status-badge status-' + record.status.toLowerCase()">
+            {{ record.status }}
+          </span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="equipment">
+        <th mat-header-cell *matHeaderCellDef scope="col">Equipment</th>
+        <td mat-cell *matCellDef="let record" class="equipment-cell">
+          {{ formatEquipment(record) }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef scope="col">Actions</th>
+        <td mat-cell *matCellDef="let record">
+          <button
+            mat-icon-button
+            (click)="openEditDialog(record)"
+            [attr.aria-label]="'Edit loan for ' + record.person.name"
+            [disabled]="isLoading()"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            (click)="openDeleteDialog(record)"
+            [attr.aria-label]="'Delete loan for ' + record.person.name"
+            class="delete-btn"
+            [disabled]="isLoading()"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+      <tr class="mat-mdc-row" *matNoDataRow>
+        <td [attr.colspan]="displayedColumns.length" class="no-data-cell">
+          No loan records found. Click "New Loan" to add one.
+        </td>
+      </tr>
+    </table>
+  </div>
+</main>

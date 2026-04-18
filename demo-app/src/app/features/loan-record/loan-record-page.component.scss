@@ -1,5 +1,5 @@
 .content {
-  max-width: 960px;
+  max-width: 1100px;
   margin: 32px auto;
   padding: 0 16px;
 }
@@ -57,6 +57,13 @@
   }
 }
 
+.equipment-cell {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .no-data-cell {
   padding: 24px;
   text-align: center;
@@ -65,6 +72,30 @@
 
 .delete-btn {
   color: #c62828;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+
+  &.status-active {
+    background: #e3f2fd;
+    color: #1565c0;
+  }
+
+  &.status-returned {
+    background: #e8f5e9;
+    color: #2e7d32;
+  }
+
+  &.status-overdue {
+    background: #fdecea;
+    color: #b71c1c;
+  }
 }
 
 .page-toolbar {

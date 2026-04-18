@@ -1,7 +1,7 @@
 <h2 mat-dialog-title>Confirm Delete</h2>
 <mat-dialog-content>
   <p>
-    Are you sure you want to delete <strong>{{ data.person.name }}</strong>? This action cannot
+    Are you sure you want to delete <strong>{{ data.name }}</strong>? This action cannot
     be undone.
   </p>
 </mat-dialog-content>
@@ -9,4 +9,3 @@
   <button mat-button (click)="cancel()">Cancel</button>
   <button mat-flat-button color="warn" (click)="confirm()">Delete</button>
 </mat-dialog-actions>
-

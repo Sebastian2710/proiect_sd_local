@@ -301,4 +301,50 @@ class PersonServiceTests {
         assertThrows(ValidationException.class,
                 () -> personService.patchPerson(uuid, patch));
     }
+    @Test
+    void testAddPerson_AsAdmin_SetsAdminRole() throws ValidationException {
+        PersonCreateDTO dto = new PersonCreateDTO();
+        dto.setName("Admin User");
+        dto.setPassword("Password1!");
+        dto.setAge(30);
+        dto.setEmail("admin@example.com");
+        dto.setRole(Role.ADMIN); // explicitly set
+
+        Person saved = new Person();
+        saved.setId(UUID.randomUUID());
+        saved.setName("Admin User");
+        saved.setPassword("Password1!");
+        saved.setAge(30);
+        saved.setEmail("admin@example.com");
+        saved.setRole(Role.ADMIN);
+
+        when(personRepository.findByEmail("admin@example.com")).thenReturn(Optional.empty());
+        when(personRepository.save(any(Person.class))).thenReturn(saved);
+
+        Person result = personService.addPerson(dto);
+
+        assertEquals(Role.ADMIN, result.getRole());
+        verify(personRepository).save(any(Person.class));
+    }
+
+    @Test
+    void testAddPerson_NoRoleProvided_DefaultsToStudent() throws ValidationException {
+        PersonCreateDTO dto = new PersonCreateDTO();
+        dto.setName("Student User");
+        dto.setPassword("Password1!");
+        dto.setAge(20);
+        dto.setEmail("student@example.com");
+        // role intentionally not set
+
+        Person saved = new Person();
+        saved.setId(UUID.randomUUID());
+        saved.setRole(Role.STUDENT);
+
+        when(personRepository.findByEmail(any())).thenReturn(Optional.empty());
+        when(personRepository.save(any(Person.class))).thenReturn(saved);
+
+        Person result = personService.addPerson(dto);
+
+        assertEquals(Role.STUDENT, result.getRole());
+    }
 }
