@@ -1,0 +1,5 @@
+{
+  "name": "Broken Item",
+  "description": "Negative stock",
+  "stockCount": -1
+}
