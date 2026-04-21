@@ -5,6 +5,7 @@ import com.andrei.demo.model.Person;
 import com.andrei.demo.model.PersonCreateDTO;
 import com.andrei.demo.model.Role;
 import com.andrei.demo.repository.PersonRepository;
+import com.andrei.demo.util.PasswordUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +16,9 @@ import java.util.UUID;
 @Service
 @AllArgsConstructor
 public class PersonService {
+
     private final PersonRepository personRepository;
+    private final PasswordUtil passwordUtil;
 
     public List<Person> getPeople() {
         return personRepository.findAll();
@@ -30,49 +33,32 @@ public class PersonService {
         person.setName(personDTO.getName());
         person.setAge(personDTO.getAge());
         person.setEmail(personDTO.getEmail());
-        person.setPassword(personDTO.getPassword());
+        person.setPassword(passwordUtil.hashPassword(personDTO.getPassword()));
         person.setRole(personDTO.getRole() != null ? personDTO.getRole() : Role.STUDENT);
+
         return personRepository.save(person);
     }
 
-    public Person updatePerson(UUID uuid, Person person) throws ValidationException{
-        Optional<Person> personOptional =
-                personRepository.findById(uuid);
-
-        if(personOptional.isEmpty()) {
-            throw new ValidationException("Person with id " + uuid + " not found");
-        }
-        Person existingPerson = personOptional.get();
+    public Person updatePerson(UUID uuid, Person person) throws ValidationException {
+        Person existingPerson = personRepository.findById(uuid)
+                .orElseThrow(() -> new ValidationException("Person with id " + uuid + " not found"));
 
         existingPerson.setName(person.getName());
         existingPerson.setAge(person.getAge());
+
         if (person.getEmail() != null && !person.getEmail().equals(existingPerson.getEmail())) {
             if (personRepository.findByEmail(person.getEmail()).isPresent()) {
                 throw new ValidationException("A user with the email " + person.getEmail() + " already exists.");
             }
             existingPerson.setEmail(person.getEmail());
         }
-        existingPerson.setPassword(person.getPassword());
+
+        // Password is intentionally not updated here; use the password reset flow instead.
         if (person.getRole() != null) {
             existingPerson.setRole(person.getRole());
         }
-        return personRepository.save(existingPerson);
-    }
 
-    public Person updatePerson2(UUID uuid, Person person) throws ValidationException{
-        return personRepository
-                        .findById(uuid)
-                        .map(existingPerson -> {
-                            existingPerson.setName(person.getName());
-                            existingPerson.setAge(person.getAge());
-                            existingPerson.setEmail(person.getEmail());
-                            existingPerson.setPassword(person.getPassword());
-                            existingPerson.setRole(person.getRole());
-                            return personRepository.save(existingPerson);
-                        })
-                        .orElseThrow(
-                                () -> new ValidationException("Person with id " + uuid + " not found")
-                        );
+        return personRepository.save(existingPerson);
     }
 
     public void deletePerson(UUID uuid) {
@@ -105,12 +91,12 @@ public class PersonService {
         if (person.getAge() != null) {
             existingPerson.setAge(person.getAge());
         }
-        if (person.getPassword() != null) {
-            existingPerson.setPassword(person.getPassword());
-        }
         if (person.getRole() != null) {
             existingPerson.setRole(person.getRole());
         }
+
+        // Password is intentionally not patched here; use the password reset flow instead.
+
         return personRepository.save(existingPerson);
     }
 }

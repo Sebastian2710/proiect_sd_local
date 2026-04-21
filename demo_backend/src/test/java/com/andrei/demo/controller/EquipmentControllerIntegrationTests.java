@@ -1,7 +1,12 @@
 package com.andrei.demo.controller;
 
 import com.andrei.demo.model.Equipment;
+import com.andrei.demo.model.Person;
+import com.andrei.demo.model.Role;
 import com.andrei.demo.repository.EquipmentRepository;
+import com.andrei.demo.repository.PersonRepository;
+import com.andrei.demo.util.JwtUtil;
+import com.andrei.demo.util.PasswordUtil;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,8 +22,6 @@ import tools.jackson.databind.ObjectMapper;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,29 +39,52 @@ public class EquipmentControllerIntegrationTests {
     @Autowired
     private EquipmentRepository equipmentRepository;
 
-    private static final String FIXTURE_PATH = "src/test/resources/fixtures/";
+    @Autowired
+    private PersonRepository personRepository;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
+    private PasswordUtil passwordUtil;
+
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private UUID seededId1;
+    private String authToken;
 
     @BeforeEach
     void setUp() throws Exception {
         equipmentRepository.deleteAll();
+        personRepository.deleteAll();
         equipmentRepository.flush();
+        personRepository.flush();
         seedDatabase();
+        initializeAuthToken();
     }
 
     private void seedDatabase() throws Exception {
         String seedDataJson = loadFixture("equipment_seed.json");
-        List<Equipment> equipmentList =
-                objectMapper.readValue(seedDataJson, new TypeReference<>() {});
+        List<Equipment> equipmentList = objectMapper.readValue(seedDataJson, new TypeReference<>() {});
         List<Equipment> saved = equipmentRepository.saveAll(equipmentList);
         seededId1 = saved.get(0).getId();
     }
 
+    private void initializeAuthToken() {
+        Person admin = new Person();
+        admin.setName("Test Admin");
+        admin.setEmail("test.admin.equipment@example.com");
+        admin.setPassword(passwordUtil.hashPassword("AdminPass123!"));
+        admin.setAge(30);
+        admin.setRole(Role.ADMIN);
+        Person saved = personRepository.save(admin);
+        authToken = jwtUtil.createToken(saved);
+    }
+
     @Test
     void testGetAllEquipment() throws Exception {
-        mockMvc.perform(get("/equipment"))
+        mockMvc.perform(get("/equipment")
+                        .header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[*].name",
@@ -66,8 +92,15 @@ public class EquipmentControllerIntegrationTests {
     }
 
     @Test
+    void testGetAllEquipment_Unauthorized() throws Exception {
+        mockMvc.perform(get("/equipment"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     void testGetEquipmentById_Existing() throws Exception {
-        mockMvc.perform(get("/equipment/" + seededId1))
+        mockMvc.perform(get("/equipment/" + seededId1)
+                        .header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(seededId1.toString()));
     }
@@ -77,6 +110,7 @@ public class EquipmentControllerIntegrationTests {
         String validJson = loadFixture("valid_equipment.json");
 
         mockMvc.perform(post("/equipment")
+                        .header("Authorization", "Bearer " + authToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(validJson))
                 .andExpect(status().isOk())
@@ -90,6 +124,7 @@ public class EquipmentControllerIntegrationTests {
         String invalidJson = loadFixture("invalid_equipment.json");
 
         mockMvc.perform(post("/equipment")
+                        .header("Authorization", "Bearer " + authToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidJson))
                 .andExpect(status().isBadRequest())
@@ -108,6 +143,7 @@ public class EquipmentControllerIntegrationTests {
                 """;
 
         mockMvc.perform(put("/equipment/" + seededId1)
+                        .header("Authorization", "Bearer " + authToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updateJson))
                 .andExpect(status().isOk())
@@ -117,10 +153,12 @@ public class EquipmentControllerIntegrationTests {
 
     @Test
     void testDeleteEquipment() throws Exception {
-        mockMvc.perform(delete("/equipment/" + seededId1))
+        mockMvc.perform(delete("/equipment/" + seededId1)
+                        .header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(get("/equipment"))
+        mockMvc.perform(get("/equipment")
+                        .header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1));
     }

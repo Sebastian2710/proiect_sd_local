@@ -4,6 +4,8 @@ import com.andrei.demo.model.*;
 import com.andrei.demo.repository.EquipmentRepository;
 import com.andrei.demo.repository.LoanRecordRepository;
 import com.andrei.demo.repository.PersonRepository;
+import com.andrei.demo.util.JwtUtil;
+import com.andrei.demo.util.PasswordUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -40,9 +43,16 @@ public class LoanRecordControllerIntegrationTests {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
+    private PasswordUtil passwordUtil;
+
     private UUID personId;
     private UUID equipmentId;
     private UUID loanId;
+    private String authToken;
 
     @BeforeEach
     void setUp() {
@@ -50,26 +60,24 @@ public class LoanRecordControllerIntegrationTests {
         personRepository.deleteAll();
         equipmentRepository.deleteAll();
 
-        // 1. Seed Person
         Person person = new Person();
         person.setName("Test User");
         person.setEmail("test@example.com");
-
-        person.setPassword("Password123!");
+        person.setPassword(passwordUtil.hashPassword("Password123!"));
         person.setAge(20);
-        person.setRole(Role.STUDENT);
-        personId = personRepository.save(person).getId();
+        person.setRole(Role.ADMIN);
+        Person savedPerson = personRepository.save(person);
+        personId = savedPerson.getId();
+        authToken = jwtUtil.createToken(savedPerson);
 
-        // 2. Seed Equipment
         Equipment equipment = new Equipment();
         equipment.setName("Test Equipment");
         equipment.setStockCount(10);
         equipment.setDescription("Test description");
         equipmentId = equipmentRepository.save(equipment).getId();
 
-        // 3. Seed an initial Loan Record
         LoanRecord loan = new LoanRecord();
-        loan.setPerson(person);
+        loan.setPerson(savedPerson);
         loan.setEquipmentList(List.of(equipment));
         loan.setLoanDate(LocalDate.now());
         loan.setStatus("ACTIVE");
@@ -79,15 +87,23 @@ public class LoanRecordControllerIntegrationTests {
 
     @Test
     void testGetAllLoanRecords() throws Exception {
-        mockMvc.perform(get("/loan"))
+        mockMvc.perform(get("/loan")
+                        .header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].status").value("ACTIVE"));
     }
 
     @Test
+    void testGetAllLoanRecords_Unauthorized() throws Exception {
+        mockMvc.perform(get("/loan"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     void testGetLoanRecordById() throws Exception {
-        mockMvc.perform(get("/loan/" + loanId))
+        mockMvc.perform(get("/loan/" + loanId)
+                        .header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(loanId.toString()));
     }
@@ -100,6 +116,7 @@ public class LoanRecordControllerIntegrationTests {
         dto.setExpectedReturnDate(LocalDate.now().plusDays(10));
 
         mockMvc.perform(post("/loan")
+                        .header("Authorization", "Bearer " + authToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
@@ -113,6 +130,7 @@ public class LoanRecordControllerIntegrationTests {
         update.setActualReturnDate(LocalDate.now());
 
         mockMvc.perform(put("/loan/" + loanId)
+                        .header("Authorization", "Bearer " + authToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(update)))
                 .andExpect(status().isOk())
@@ -121,10 +139,12 @@ public class LoanRecordControllerIntegrationTests {
 
     @Test
     void testDeleteLoanRecord() throws Exception {
-        mockMvc.perform(delete("/loan/" + loanId))
+        mockMvc.perform(delete("/loan/" + loanId)
+                        .header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(get("/loan/" + loanId))
+        mockMvc.perform(get("/loan/" + loanId)
+                        .header("Authorization", "Bearer " + authToken))
                 .andExpect(status().isNotFound());
     }
 }
