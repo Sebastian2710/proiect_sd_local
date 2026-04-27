@@ -14,7 +14,7 @@
           required
           aria-describedby="email-errors"
         />
-        @if (loginForm.controls.email.touched && loginForm.controls.email.hasError('required')) {
+        @if (loginForm.get('email')?.touched && loginForm.controls.email.hasError('required')) {
           <mat-error id="email-errors">Email is required.</mat-error>
         }
       </mat-form-field>
@@ -29,7 +29,7 @@
           required
           aria-describedby="password-errors"
         />
-        @if (loginForm.controls.password.touched && loginForm.controls.password.hasError('required')) {
+        @if (loginForm.get('password')?.touched && loginForm.get('password')?.hasError('required')) {
           <mat-error id="password-errors">Password is required.</mat-error>
         }
       </mat-form-field>
@@ -46,5 +46,9 @@
         }
       </button>
     </form>
+
+    <p class="forgot-link">
+      <a routerLink="/forgot-password">Forgot your password?</a>
+    </p>
   </mat-card>
 </main>

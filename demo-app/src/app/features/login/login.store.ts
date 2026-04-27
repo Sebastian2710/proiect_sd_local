@@ -1,11 +1,11 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { catchError, finalize, Observable, of, tap } from 'rxjs';
 import { LoginRequest, LoginResponse, LoginService } from '../../services/login.service';
 
 interface AuthSnapshot {
-  isAuthenticated: boolean;
   role: string | null;
+  token: string;
 }
 
 const STORAGE_KEY = 'demo-app-auth';
@@ -16,7 +16,8 @@ export class LoginStore {
 
   readonly isSubmitting = signal(false);
   readonly errorMessage = signal<string | null>(null);
-  readonly isAuthenticated = signal(false);
+  readonly token = signal<string | null>(null);
+  readonly isAuthenticated = computed(() => this.token() !== null);
   readonly role = signal<string | null>(null);
 
   constructor() {
@@ -43,8 +44,8 @@ export class LoginStore {
   }
 
   private applyResponse(response: LoginResponse): void {
-    if (response.success) {
-      this.isAuthenticated.set(true);
+    if (response.success && response.token) {
+      this.token.set(response.token);
       this.role.set(response.role);
       this.errorMessage.set(null);
       this.persistAuthState();
@@ -61,6 +62,7 @@ export class LoginStore {
         return {
           success: maybeError.success,
           role: maybeError.role ?? null,
+          token: maybeError.token ?? null,
           errorMessage:
             maybeError.errorMessage ??
             (error.status === 401
@@ -73,6 +75,7 @@ export class LoginStore {
     return {
       success: false,
       role: null,
+      token: null,
       errorMessage: 'Unable to complete login. Please try again.',
     };
   }
@@ -85,7 +88,12 @@ export class LoginStore {
 
     try {
       const snapshot = JSON.parse(stored) as AuthSnapshot;
-      this.isAuthenticated.set(snapshot.isAuthenticated);
+      if (!snapshot.token) {
+        this.clearSession();
+        return;
+      }
+
+      this.token.set(snapshot.token);
       this.role.set(snapshot.role ?? null);
     } catch {
       this.clearSession();
@@ -93,16 +101,21 @@ export class LoginStore {
   }
 
   private persistAuthState(): void {
+    const token = this.token();
+    if (!token) {
+      return;
+    }
+
     const snapshot: AuthSnapshot = {
-      isAuthenticated: this.isAuthenticated(),
       role: this.role(),
+      token,
     };
 
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
   }
 
   private clearSession(errorMessage: string | null = null): void {
-    this.isAuthenticated.set(false);
+    this.token.set(null);
     this.role.set(null);
     this.errorMessage.set(errorMessage);
     sessionStorage.removeItem(STORAGE_KEY);
