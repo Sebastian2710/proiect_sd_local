@@ -3,7 +3,9 @@ package com.andrei.demo.controller;
 import com.andrei.demo.config.ValidationException;
 import com.andrei.demo.model.LoanRecord;
 import com.andrei.demo.model.LoanRecordCreateDTO;
+import com.andrei.demo.model.StudentLoanRequestDTO;
 import com.andrei.demo.service.LoanRecordService;
+import com.andrei.demo.util.JwtUtil;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +20,7 @@ import java.util.UUID;
 public class LoanRecordController {
 
     private final LoanRecordService loanRecordService;
+    private final JwtUtil jwtUtil;
 
     @GetMapping
     public List<LoanRecord> getAllLoanRecords() {
@@ -32,6 +35,23 @@ public class LoanRecordController {
     @PostMapping
     public LoanRecord addLoanRecord(@Valid @RequestBody LoanRecordCreateDTO dto) throws ValidationException {
         return loanRecordService.addLoanRecord(dto);
+    }
+
+    @PostMapping("/request")
+    public LoanRecord requestLoan(
+            @Valid @RequestBody StudentLoanRequestDTO dto,
+            @RequestHeader("Authorization") String authHeader) throws ValidationException {
+        String token = authHeader.substring(7);
+        String email = jwtUtil.getEmailFromToken(token);
+        return loanRecordService.requestLoan(dto, email);
+    }
+
+    @GetMapping("/my")
+    public List<LoanRecord> getMyLoanRecords(
+            @RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.substring(7);
+        String email = jwtUtil.getEmailFromToken(token);
+        return loanRecordService.getLoanRecordsByPersonEmail(email);
     }
 
     @PutMapping("/{id}")

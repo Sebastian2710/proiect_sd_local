@@ -10,3 +10,9 @@ export interface Person {
 export type CreatePersonDto = Omit<Person, 'id'>;
 export type UpdatePersonDto = Omit<Person, 'id'>;
 
+export interface RegisterPersonDto {
+  name: string;
+  password: string;
+  age: number;
+  email: string;
+}

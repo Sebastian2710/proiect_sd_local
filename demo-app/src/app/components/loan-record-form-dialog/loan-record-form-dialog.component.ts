@@ -9,14 +9,19 @@ import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angula
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { PersonService } from '../../services/person.service';
-import { EquipmentService } from '../../services/equipment.service';
-import { Person } from '../../models/person.model';
+import { MatSelectModule } from '@angular/material/select';
 import { Equipment } from '../../models/equipment.model';
-import { LoanRecordCreateDto, LoanRecordUpdateDto } from '../../models/loan-record.model';
+import {
+  EquipmentQuantityDto,
+  LoanRecordCreateDto,
+  LoanRecordUpdateDto,
+} from '../../models/loan-record.model';
+import { Person } from '../../models/person.model';
+import { EquipmentService } from '../../services/equipment.service';
+import { PersonService } from '../../services/person.service';
 
 export type LoanFormMode = 'create' | 'update';
 
@@ -34,7 +39,7 @@ export type LoanRecordFormDialogResult =
   | LoanRecordUpdateDto
   | undefined;
 
-const LOAN_STATUSES = ['ACTIVE', 'RETURNED', 'OVERDUE'] as const;
+const LOAN_STATUSES = ['PROCESSING', 'ACTIVE', 'RETURNED', 'OVERDUE'] as const;
 
 @Component({
   selector: 'app-loan-record-form-dialog',
@@ -45,6 +50,7 @@ const LOAN_STATUSES = ['ACTIVE', 'RETURNED', 'OVERDUE'] as const;
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
+    MatIconModule,
     MatProgressSpinnerModule,
   ],
   templateUrl: './loan-record-form-dialog.component.html',
@@ -64,17 +70,40 @@ export class LoanRecordFormDialogComponent implements OnInit {
   protected readonly loadingRefs = signal(false);
   protected readonly today = new Date().toISOString().split('T')[0];
 
+  // Create form with items FormArray
   protected readonly createForm = this.fb.group({
     personId: ['', [Validators.required]],
-    equipmentIds: [[] as string[], [Validators.required, Validators.minLength(1)]],
     expectedReturnDate: ['', [Validators.required]],
+    items: this.fb.array([this.createItemGroup()]),
   });
 
+  // Update form
   protected readonly updateForm = this.fb.group({
     status: ['', [Validators.required]],
     expectedReturnDate: [''],
     actualReturnDate: [''],
   });
+
+  private createItemGroup() {
+    return this.fb.group({
+      equipmentId: ['', [Validators.required]],
+      quantity: [1, [Validators.required, Validators.min(1)]],
+    });
+  }
+
+  get itemControls() {
+    return this.createForm.controls.items.controls;
+  }
+
+  protected addItem(): void {
+    this.createForm.controls.items.push(this.createItemGroup());
+  }
+
+  protected removeItem(index: number): void {
+    if (this.createForm.controls.items.length > 1) {
+      this.createForm.controls.items.removeAt(index);
+    }
+  }
 
   ngOnInit(): void {
     if (this.data.mode === 'create') {
@@ -95,8 +124,14 @@ export class LoanRecordFormDialogComponent implements OnInit {
       done++;
       if (done === 2) this.loadingRefs.set(false);
     };
-    this.personService.getAll().subscribe({ next: (p) => { this.persons.set(p); check(); }, error: () => check() });
-    this.equipmentService.getAll().subscribe({ next: (e) => { this.equipment.set(e); check(); }, error: () => check() });
+    this.personService.getAll().subscribe({
+      next: (p) => { this.persons.set(p); check(); },
+      error: () => check(),
+    });
+    this.equipmentService.getAll().subscribe({
+      next: (e) => { this.equipment.set(e); check(); },
+      error: () => check(),
+    });
   }
 
   protected submit(): void {
@@ -105,8 +140,12 @@ export class LoanRecordFormDialogComponent implements OnInit {
         this.createForm.markAllAsTouched();
         return;
       }
-      const { personId, equipmentIds, expectedReturnDate } = this.createForm.getRawValue();
-      this.dialogRef.close({ personId, equipmentIds, expectedReturnDate } as LoanRecordCreateDto);
+      const { personId, expectedReturnDate, items } = this.createForm.getRawValue();
+      const equipmentQuantities: EquipmentQuantityDto[] = items.map((i) => ({
+        equipmentId: i.equipmentId,
+        quantity: i.quantity,
+      }));
+      this.dialogRef.close({ personId, equipmentQuantities, expectedReturnDate } as LoanRecordCreateDto);
     } else {
       if (this.updateForm.invalid) {
         this.updateForm.markAllAsTouched();

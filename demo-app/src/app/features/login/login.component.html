@@ -29,7 +29,7 @@
           required
           aria-describedby="password-errors"
         />
-        @if (loginForm.get('password')?.touched && loginForm.get('password')?.hasError('required')) {
+        @if (loginForm.get('password')?.touched && loginForm.controls.password.hasError('required')) {
           <mat-error id="password-errors">Password is required.</mat-error>
         }
       </mat-form-field>
@@ -39,16 +39,15 @@
       }
 
       <button mat-flat-button color="primary" type="submit" [disabled]="isSubmitting()">
-        @if (isSubmitting()) {
-          Signing in...
-        } @else {
-          Sign in
-        }
+        @if (isSubmitting()) { Signing in... } @else { Sign in }
       </button>
     </form>
 
     <p class="forgot-link">
       <a routerLink="/forgot-password">Forgot your password?</a>
+    </p>
+    <p class="register-link">
+      New student? <a routerLink="/register">Create an account</a>
     </p>
   </mat-card>
 </main>

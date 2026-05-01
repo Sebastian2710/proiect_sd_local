@@ -1,13 +1,204 @@
 <mat-toolbar color="primary" class="page-toolbar">
   <span class="toolbar-title">Student Portal</span>
   <span class="toolbar-spacer" aria-hidden="true"></span>
+  <button
+    mat-button
+    type="button"
+    (click)="toggleMyLoans()"
+    [attr.aria-expanded]="showMyLoans()"
+    aria-controls="my-loans-section"
+  >
+    <mat-icon aria-hidden="true">assignment</mat-icon>
+    {{ showMyLoans() ? 'Hide My Loans' : 'My Loan Records' }}
+  </button>
   <button mat-button type="button" (click)="logout()" aria-label="Sign out">
     <mat-icon aria-hidden="true">logout</mat-icon>
     Logout
   </button>
 </mat-toolbar>
 
-<main class="content" aria-labelledby="dashboard-title">
-  <h1 id="dashboard-title">Welcome, Student</h1>
-  <p>Your dashboard is coming soon. Please check back later.</p>
+<main class="content">
+
+  @if (requestSuccess()) {
+    <div class="success-alert" role="status" aria-live="polite">
+      <mat-icon aria-hidden="true">check_circle</mat-icon>
+      Your loan request has been submitted and is awaiting admin approval.
+    </div>
+  }
+
+  @if (requestError()) {
+    <div class="error-alert" role="alert" aria-live="assertive">
+      <mat-icon aria-hidden="true">error_outline</mat-icon>
+      {{ requestError() }}
+    </div>
+  }
+
+  <!-- Equipment section -->
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">Equipment Catalog</h1>
+      <p class="page-subtitle">Browse available equipment and submit a loan request.</p>
+    </div>
+    <button
+      mat-flat-button
+      type="button"
+      (click)="openRequestLoanDialog()"
+      [disabled]="isEquipmentLoading()"
+      aria-label="Request a loan"
+    >
+      <mat-icon>add_shopping_cart</mat-icon>
+      Request Loan
+    </button>
+  </header>
+
+  <section class="filter-bar" aria-label="Filter and sort options">
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Search by name</mat-label>
+      <input
+        matInput
+        type="search"
+        [ngModel]="searchQuery()"
+        (ngModelChange)="onSearchChange($event)"
+        aria-label="Search equipment by name"
+      />
+      <mat-icon matSuffix aria-hidden="true">search</mat-icon>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Stock status</mat-label>
+      <mat-select
+        [value]="stockFilter()"
+        (selectionChange)="onStockFilterChange($event.value)"
+        aria-label="Filter by stock status"
+      >
+        <mat-option value="all">All</mat-option>
+        <mat-option value="in-stock">In Stock</mat-option>
+        <mat-option value="out-of-stock">Out of Stock</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Sort by</mat-label>
+      <mat-select
+        [value]="sortOption()"
+        (selectionChange)="onSortChange($event.value)"
+        aria-label="Sort equipment"
+      >
+        <mat-option value="name_asc">Name A–Z</mat-option>
+        <mat-option value="name_desc">Name Z–A</mat-option>
+        <mat-option value="stock_asc">Stock Low–High</mat-option>
+        <mat-option value="stock_desc">Stock High–Low</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </section>
+
+  @if (isEquipmentLoading()) {
+    <p class="loading-status" role="status" aria-live="polite">Loading equipment...</p>
+  }
+
+  <div
+    class="table-container"
+    role="region"
+    aria-label="Equipment catalog"
+    [attr.aria-busy]="isEquipmentLoading()"
+    [class.is-busy]="isEquipmentLoading()"
+  >
+    <table mat-table [dataSource]="filteredEquipment()" aria-label="Equipment table">
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef scope="col">Name</th>
+        <td mat-cell *matCellDef="let item">{{ item.name }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="description">
+        <th mat-header-cell *matHeaderCellDef scope="col">Description</th>
+        <td mat-cell *matCellDef="let item">{{ item.description }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="stockCount">
+        <th mat-header-cell *matHeaderCellDef scope="col">Available</th>
+        <td mat-cell *matCellDef="let item">
+          <span [class.out-of-stock]="item.stockCount === 0">
+            {{ item.stockCount === 0 ? 'Out of stock' : item.stockCount }}
+          </span>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedEquipmentColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedEquipmentColumns;"></tr>
+
+      <tr class="mat-mdc-row" *matNoDataRow>
+        <td [attr.colspan]="displayedEquipmentColumns.length" class="no-data-cell">
+          No equipment found.
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- My Loan Records section -->
+  @if (showMyLoans()) {
+    <section id="my-loans-section" class="my-loans-section" aria-labelledby="my-loans-title">
+      <h2 id="my-loans-title" class="section-title">My Loan Records</h2>
+
+      @if (isLoansLoading()) {
+        <p class="loading-status" role="status" aria-live="polite">Loading your loan records...</p>
+      }
+
+      @if (loansError()) {
+        <div class="error-alert" role="alert" aria-live="assertive">
+          <mat-icon aria-hidden="true">error_outline</mat-icon>
+          {{ loansError() }}
+        </div>
+      }
+
+      <div
+        class="table-container"
+        role="region"
+        aria-label="My loan records"
+        [attr.aria-busy]="isLoansLoading()"
+        [class.is-busy]="isLoansLoading()"
+      >
+        <table mat-table [dataSource]="myLoanRecords()" aria-label="My loan records table">
+          <ng-container matColumnDef="equipment">
+            <th mat-header-cell *matHeaderCellDef scope="col">Equipment</th>
+            <td mat-cell *matCellDef="let record" class="equipment-cell">
+              {{ formatEquipment(record) }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="loanDate">
+            <th mat-header-cell *matHeaderCellDef scope="col">Loan Date</th>
+            <td mat-cell *matCellDef="let record">{{ record.loanDate }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="expectedReturnDate">
+            <th mat-header-cell *matHeaderCellDef scope="col">Expected Return</th>
+            <td mat-cell *matCellDef="let record">{{ record.expectedReturnDate }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="actualReturnDate">
+            <th mat-header-cell *matHeaderCellDef scope="col">Actual Return</th>
+            <td mat-cell *matCellDef="let record">{{ record.actualReturnDate ?? '—' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef scope="col">Status</th>
+            <td mat-cell *matCellDef="let record">
+              <span [class]="'status-badge status-' + record.status.toLowerCase()">
+                {{ record.status }}
+              </span>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedLoanColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedLoanColumns;"></tr>
+
+          <tr class="mat-mdc-row" *matNoDataRow>
+            <td [attr.colspan]="displayedLoanColumns.length" class="no-data-cell">
+              You have no loan records yet.
+            </td>
+          </tr>
+        </table>
+      </div>
+    </section>
+  }
 </main>

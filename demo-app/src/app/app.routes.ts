@@ -2,16 +2,17 @@ import { Routes } from '@angular/router';
 import { authGuard, guestGuard, adminGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
-  {
-    path: '',
-    pathMatch: 'full',
-    redirectTo: 'login',
-  },
+  { path: '', pathMatch: 'full', redirectTo: 'login' },
   {
     path: 'login',
     canActivate: [guestGuard],
     loadComponent: () =>
       import('./features/login/login.component').then((m) => m.LoginComponent),
+  },
+  {
+    path: 'register',
+    loadComponent: () =>
+      import('./features/register/register.component').then((m) => m.RegisterComponent),
   },
   {
     path: 'forgot-password',
@@ -62,8 +63,5 @@ export const routes: Routes = [
         (m) => m.NotFoundPageComponent,
       ),
   },
-  {
-    path: '**',
-    redirectTo: 'error',
-  },
+  { path: '**', redirectTo: 'error' },
 ];

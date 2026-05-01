@@ -14,6 +14,12 @@ export interface EquipmentSummary {
   stockCount: number;
 }
 
+export interface LoanEquipmentItem {
+  id: string;
+  equipment: EquipmentSummary;
+  quantity: number;
+}
+
 export interface LoanRecord {
   id: string;
   loanDate: string;
@@ -21,12 +27,17 @@ export interface LoanRecord {
   actualReturnDate: string | null;
   status: string;
   person: PersonSummary;
-  equipmentList: EquipmentSummary[];
+  items: LoanEquipmentItem[];
+}
+
+export interface EquipmentQuantityDto {
+  equipmentId: string;
+  quantity: number;
 }
 
 export interface LoanRecordCreateDto {
   personId: string;
-  equipmentIds: string[];
+  equipmentQuantities: EquipmentQuantityDto[];
   expectedReturnDate: string;
 }
 
@@ -34,4 +45,9 @@ export interface LoanRecordUpdateDto {
   expectedReturnDate?: string | null;
   actualReturnDate?: string | null;
   status?: string | null;
+}
+
+export interface StudentLoanRequestDto {
+  equipmentQuantities: EquipmentQuantityDto[];
+  expectedReturnDate: string;
 }

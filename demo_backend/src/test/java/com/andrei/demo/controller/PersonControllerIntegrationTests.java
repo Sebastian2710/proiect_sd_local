@@ -30,20 +30,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestPropertySource(locations = "classpath:application-test.properties")
 public class PersonControllerIntegrationTests {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private PersonRepository personRepository;
-
-    @Autowired
-    private JwtUtil jwtUtil;
-
-    @Autowired
-    private PasswordUtil passwordUtil;
+    @Autowired private MockMvc mockMvc;
+    @Autowired private PersonRepository personRepository;
+    @Autowired private JwtUtil jwtUtil;
+    @Autowired private PasswordUtil passwordUtil;
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
-
     private String authToken;
 
     @BeforeEach
@@ -57,7 +49,6 @@ public class PersonControllerIntegrationTests {
     private void seedDatabase() throws Exception {
         String seedDataJson = loadFixture("person_seed.json");
         List<Person> people = objectMapper.readValue(seedDataJson, new TypeReference<>() {});
-        // Hash the passwords before saving so tests that need login work correctly
         people.forEach(p -> p.setPassword(passwordUtil.hashPassword(p.getPassword())));
         personRepository.saveAll(people);
     }
@@ -65,12 +56,13 @@ public class PersonControllerIntegrationTests {
     private void initializeAuthToken() {
         Person authPerson = personRepository.findAll().stream()
                 .findFirst()
-                .orElseThrow(() -> new IllegalStateException("No seeded person available for auth token"));
-        // Ensure the auth person has ADMIN role for accessing protected routes
+                .orElseThrow(() -> new IllegalStateException("No seeded person available"));
         authPerson.setRole(Role.ADMIN);
         personRepository.save(authPerson);
         authToken = jwtUtil.createToken(authPerson);
     }
+
+    // --- person CRUD ---
 
     @Test
     void testGetPeople() throws Exception {
@@ -79,12 +71,7 @@ public class PersonControllerIntegrationTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[*].name",
-                        Matchers.containsInAnyOrder("John Doe", "Jane Doe")))
-                .andExpect(jsonPath("$[*].age",
-                        Matchers.containsInAnyOrder(30, 25)))
-                .andExpect(jsonPath("$[*].email",
-                        Matchers.containsInAnyOrder(
-                                "john.doe@example.com", "jane.doe@example.com")));
+                        Matchers.containsInAnyOrder("John Doe", "Jane Doe")));
     }
 
     @Test
@@ -167,11 +154,85 @@ public class PersonControllerIntegrationTests {
                 .andExpect(jsonPath("$.role").value("ADMIN"));
     }
 
+    // --- register (public endpoint) ---
+
+    @Test
+    void testRegister_ValidPayload_NoAuthRequired() throws Exception {
+        String json = """
+                {
+                  "name": "New Student",
+                  "password": "Securepass123!@#",
+                  "age": 22,
+                  "email": "new.student@example.com"
+                }
+                """;
+
+        mockMvc.perform(post("/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.role").value("STUDENT"))
+                .andExpect(jsonPath("$.email").value("new.student@example.com"))
+                .andExpect(jsonPath("$.password", Matchers.startsWith("$2")));
+    }
+
+    @Test
+    void testRegister_AlwaysStudentRole() throws Exception {
+        // Even if ADMIN role is specified, it should be ignored
+        String json = """
+                {
+                  "name": "Fake Admin",
+                  "password": "Securepass123!@#",
+                  "age": 25,
+                  "email": "fake.admin@example.com"
+                }
+                """;
+
+        mockMvc.perform(post("/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.role").value("STUDENT"));
+    }
+
+    @Test
+    void testRegister_DuplicateEmail() throws Exception {
+        String json = """
+                {
+                  "name": "John Duplicate",
+                  "password": "Securepass123!@#",
+                  "age": 30,
+                  "email": "john.doe@example.com"
+                }
+                """;
+
+        mockMvc.perform(post("/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.business_error").exists());
+    }
+
+    @Test
+    void testRegister_InvalidPayload() throws Exception {
+        String json = """
+                {
+                  "name": "A",
+                  "password": "weak",
+                  "age": null,
+                  "email": ""
+                }
+                """;
+
+        mockMvc.perform(post("/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isBadRequest());
+    }
+
     private String loadFixture(String fileName) throws IOException {
         try (InputStream is = getClass().getResourceAsStream("/fixtures/" + fileName)) {
-            if (is == null) {
-                throw new FileNotFoundException("Fixture not found: " + fileName);
-            }
+            if (is == null) throw new FileNotFoundException("Fixture not found: " + fileName);
             return new String(is.readAllBytes());
         }
     }

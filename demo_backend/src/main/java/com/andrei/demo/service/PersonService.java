@@ -3,6 +3,7 @@ package com.andrei.demo.service;
 import com.andrei.demo.config.ValidationException;
 import com.andrei.demo.model.Person;
 import com.andrei.demo.model.PersonCreateDTO;
+import com.andrei.demo.model.RegisterPersonDto;
 import com.andrei.demo.model.Role;
 import com.andrei.demo.repository.PersonRepository;
 import com.andrei.demo.util.PasswordUtil;
@@ -10,7 +11,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -26,7 +26,8 @@ public class PersonService {
 
     public Person addPerson(PersonCreateDTO personDTO) throws ValidationException {
         if (personRepository.findByEmail(personDTO.getEmail()).isPresent()) {
-            throw new ValidationException("A user with the email " + personDTO.getEmail() + " already exists.");
+            throw new ValidationException(
+                    "A user with the email " + personDTO.getEmail() + " already exists.");
         }
 
         Person person = new Person();
@@ -39,21 +40,38 @@ public class PersonService {
         return personRepository.save(person);
     }
 
+    public Person registerStudent(RegisterPersonDto dto) throws ValidationException {
+        if (personRepository.findByEmail(dto.getEmail()).isPresent()) {
+            throw new ValidationException(
+                    "A user with the email " + dto.getEmail() + " already exists.");
+        }
+
+        Person person = new Person();
+        person.setName(dto.getName());
+        person.setAge(dto.getAge());
+        person.setEmail(dto.getEmail());
+        person.setPassword(passwordUtil.hashPassword(dto.getPassword()));
+        person.setRole(Role.STUDENT); // always STUDENT for self-registration
+
+        return personRepository.save(person);
+    }
+
     public Person updatePerson(UUID uuid, Person person) throws ValidationException {
         Person existingPerson = personRepository.findById(uuid)
-                .orElseThrow(() -> new ValidationException("Person with id " + uuid + " not found"));
+                .orElseThrow(() -> new ValidationException(
+                        "Person with id " + uuid + " not found"));
 
         existingPerson.setName(person.getName());
         existingPerson.setAge(person.getAge());
 
         if (person.getEmail() != null && !person.getEmail().equals(existingPerson.getEmail())) {
             if (personRepository.findByEmail(person.getEmail()).isPresent()) {
-                throw new ValidationException("A user with the email " + person.getEmail() + " already exists.");
+                throw new ValidationException(
+                        "A user with the email " + person.getEmail() + " already exists.");
             }
             existingPerson.setEmail(person.getEmail());
         }
 
-        // Password is intentionally not updated here; use the password reset flow instead.
         if (person.getRole() != null) {
             existingPerson.setRole(person.getRole());
         }
@@ -77,11 +95,13 @@ public class PersonService {
 
     public Person patchPerson(UUID uuid, Person person) throws ValidationException {
         Person existingPerson = personRepository.findById(uuid)
-                .orElseThrow(() -> new ValidationException("Person with id " + uuid + " not found"));
+                .orElseThrow(() -> new ValidationException(
+                        "Person with id " + uuid + " not found"));
 
         if (person.getEmail() != null && !person.getEmail().equals(existingPerson.getEmail())) {
             if (personRepository.findByEmail(person.getEmail()).isPresent()) {
-                throw new ValidationException("A user with the email " + person.getEmail() + " already exists.");
+                throw new ValidationException(
+                        "A user with the email " + person.getEmail() + " already exists.");
             }
             existingPerson.setEmail(person.getEmail());
         }
@@ -94,8 +114,6 @@ public class PersonService {
         if (person.getRole() != null) {
             existingPerson.setRole(person.getRole());
         }
-
-        // Password is intentionally not patched here; use the password reset flow instead.
 
         return personRepository.save(existingPerson);
     }

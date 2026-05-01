@@ -57,6 +57,10 @@ public class JwtUtil {
         return getAllClaimsFromToken(token).get("role", String.class);
     }
 
+    public String getEmailFromToken(String token) {
+        return getAllClaimsFromToken(token).getSubject();
+    }
+
     public boolean checkClaims(String token) {
         Claims claims = getAllClaimsFromToken(token);
 

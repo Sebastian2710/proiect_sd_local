@@ -1,9 +1,10 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { CreatePersonDto, Person } from '../models/person.model';
+import { CreatePersonDto, Person, RegisterPersonDto } from '../models/person.model';
 
 const API_URL = 'http://localhost:8080/person';
+const REGISTER_URL = 'http://localhost:8080/register';
 
 @Injectable({ providedIn: 'root' })
 export class PersonService {
@@ -24,5 +25,8 @@ export class PersonService {
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${API_URL}/${id}`);
   }
-}
 
+  register(dto: RegisterPersonDto): Observable<Person> {
+    return this.http.post<Person>(REGISTER_URL, dto);
+  }
+}

@@ -65,7 +65,7 @@ export class LoanRecordPageComponent {
   }
 
   protected formatEquipment(record: LoanRecord): string {
-    return record.equipmentList.map((e) => e.name).join(', ') || '—';
+    return record.items.map((item) => item.equipment.name).join(', ') || '—';
   }
 
   protected openCreateDialog(): void {

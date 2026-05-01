@@ -27,11 +27,9 @@ public class Equipment {
     @Column(nullable = false)
     private Integer stockCount;
 
-    @ManyToMany(mappedBy = "equipmentList")
+    @OneToMany(mappedBy = "equipment")
     @JsonIgnore
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private List<LoanRecord> loanRecords;
-
-
+    private List<LoanEquipmentItem> loanItems;
 }

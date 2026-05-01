@@ -1,7 +1,12 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { LoanRecord, LoanRecordCreateDto, LoanRecordUpdateDto } from '../models/loan-record.model';
+import {
+  LoanRecord,
+  LoanRecordCreateDto,
+  LoanRecordUpdateDto,
+  StudentLoanRequestDto,
+} from '../models/loan-record.model';
 
 const API_URL = 'http://localhost:8080/loan';
 
@@ -15,6 +20,14 @@ export class LoanRecordService {
 
   create(dto: LoanRecordCreateDto): Observable<LoanRecord> {
     return this.http.post<LoanRecord>(API_URL, dto);
+  }
+
+  createRequest(dto: StudentLoanRequestDto): Observable<LoanRecord> {
+    return this.http.post<LoanRecord>(`${API_URL}/request`, dto);
+  }
+
+  getMyLoanRecords(): Observable<LoanRecord[]> {
+    return this.http.get<LoanRecord[]>(`${API_URL}/my`);
   }
 
   update(id: string, dto: LoanRecordUpdateDto): Observable<LoanRecord> {

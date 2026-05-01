@@ -1,0 +1,68 @@
+<h2 mat-dialog-title>Request a Loan</h2>
+
+<mat-dialog-content>
+  <p class="dialog-subtitle">Select the equipment you need and your expected return date.</p>
+
+  <form [formGroup]="form" id="loan-request-form" (ngSubmit)="submit()">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Expected Return Date</mat-label>
+      <input matInput type="date" formControlName="expectedReturnDate" [min]="today" />
+      @if (form.get('expectedReturnDate')?.touched && form.controls.expectedReturnDate.hasError('required')) {
+        <mat-error>Expected return date is required.</mat-error>
+      }
+    </mat-form-field>
+
+    <p class="items-label">Equipment Items</p>
+    <div formArrayName="items">
+      @for (item of itemControls; track item; let i = $index) {
+        <div [formGroupName]="i" class="item-row">
+          <mat-form-field appearance="outline" class="item-equipment">
+            <mat-label>Equipment</mat-label>
+            <mat-select formControlName="equipmentId" aria-label="Select equipment">
+              @for (eq of data.availableEquipment; track eq.id) {
+                <mat-option [value]="eq.id" [disabled]="eq.stockCount === 0">
+                  {{ eq.name }}
+                  @if (eq.stockCount === 0) {
+                    (out of stock)
+                  } @else {
+                    ({{ eq.stockCount }} available)
+                  }
+                </mat-option>
+              }
+            </mat-select>
+            @if (item.get('equipmentId')?.touched && item.controls['equipmentId'].hasError('required')) {
+              <mat-error>Select equipment.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="item-qty">
+            <mat-label>Qty</mat-label>
+            <input matInput type="number" formControlName="quantity" min="1" />
+            @if (item.controls['quantity'].hasError('min')) {
+              <mat-error>Min 1.</mat-error>
+            }
+          </mat-form-field>
+
+          <button
+            mat-icon-button
+            type="button"
+            (click)="removeItem(i)"
+            [disabled]="itemControls.length === 1"
+            [attr.aria-label]="'Remove item ' + (i + 1)"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      }
+    </div>
+
+    <button mat-stroked-button type="button" (click)="addItem()" class="add-item-btn">
+      <mat-icon>add</mat-icon> Add Equipment
+    </button>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="cancel()">Cancel</button>
+  <button mat-flat-button type="button" (click)="submit()">Submit Request</button>
+</mat-dialog-actions>

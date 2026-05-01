@@ -2,8 +2,11 @@ package com.andrei.demo.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,15 +34,8 @@ public class LoanRecord {
     @JoinColumn(name = "person_id", nullable = false)
     private Person person;
 
-    @ManyToMany
-    @JoinTable(
-            name = "loan_equipment",
-            joinColumns = @JoinColumn(name = "loan_id"),
-            inverseJoinColumns = @JoinColumn(name = "equipment_id")
-    )
-    private List<Equipment> equipmentList;
-
-    public void setEquipmentList(List<Equipment> equipmentList) {
-        this.equipmentList = equipmentList;
-    }
+    @OneToMany(mappedBy = "loanRecord", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<LoanEquipmentItem> items = new ArrayList<>();
 }
