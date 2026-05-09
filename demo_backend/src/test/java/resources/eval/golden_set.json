@@ -1,0 +1,159 @@
+[
+  {
+    "id": "weather_station_wifi",
+    "description": "Build a portable weather station that records temperature, humidity and barometric pressure to an SD card every minute, runs on battery, and uploads daily summaries over WiFi.",
+    "expectedItems": ["ESP32 dev board", "BME280 sensor", "MicroSD card breakout", "18650 battery pack"],
+    "acceptableItems": ["LM2596 buck converter", "Breadboard (830 tie-points)"],
+    "rationale": "ESP32 (not Arduino) for WiFi. BME280 covers all three measurements. MicroSD for logging. Battery for portability. Buck converter likely needed for 7.4V battery."
+  },
+  {
+    "id": "soil_moisture_basic",
+    "description": "Simple plant monitor that beeps when the soil is dry. Just detect dryness and alert me. No connectivity needed.",
+    "expectedItems": ["Arduino Uno R3"],
+    "acceptableItems": ["Breadboard (830 tie-points)", "ESP32 dev board"],
+    "rationale": "Catalog has no soil moisture sensor. Plan should mention this gap rather than substitute. Arduino is sufficient for the buzzer logic."
+  },
+  {
+    "id": "led_clock",
+    "description": "A desk clock that shows time on a small OLED screen, with color-changing LED lighting around it.",
+    "expectedItems": ["Arduino Uno R3", "SSD1306 OLED display", "NeoPixel ring (16 LED)"],
+    "acceptableItems": ["ESP32 dev board", "Breadboard (830 tie-points)"],
+    "rationale": "Catalog has no real-time clock module — should be flagged. OLED for display, NeoPixel ring for lighting."
+  },
+  {
+    "id": "parking_sensor",
+    "description": "Garage parking sensor that uses ultrasonic distance and shows how close the car is on a screen.",
+    "expectedItems": ["Arduino Uno R3", "HC-SR04 ultrasonic distance sensor"],
+    "acceptableItems": ["SSD1306 OLED display", "16x2 character LCD", "ESP32 dev board", "Breadboard (830 tie-points)"]
+  },
+  {
+    "id": "motion_alarm",
+    "description": "A simple motion-triggered alarm. When someone walks in front of it, beep loudly.",
+    "expectedItems": ["Arduino Uno R3", "PIR motion sensor"],
+    "acceptableItems": ["ESP32 dev board", "Breadboard (830 tie-points)"]
+  },
+  {
+    "id": "stepper_curtain",
+    "description": "Automated curtain opener using a stepper motor that runs on a schedule.",
+    "expectedItems": ["Arduino Uno R3", "NEMA 17 stepper motor", "A4988 stepper driver"],
+    "acceptableItems": ["ESP32 dev board"]
+  },
+  {
+    "id": "pet_feeder",
+    "description": "Pet feeder that dispenses food twice a day by rotating a servo-driven hopper. Runs on USB power.",
+    "expectedItems": ["Arduino Uno R3", "SG90 micro servo"],
+    "acceptableItems": ["ESP32 dev board", "Breadboard (830 tie-points)"]
+  },
+  {
+    "id": "fall_detector",
+    "description": "Wearable that detects sudden falls using an accelerometer and signals via a buzzer.",
+    "expectedItems": ["Arduino Uno R3", "MPU6050 IMU", "18650 battery pack"],
+    "acceptableItems": ["ESP32 dev board", "LM2596 buck converter"]
+  },
+  {
+    "id": "image_classifier",
+    "description": "Train and run a small image classifier in Python that identifies objects in front of a camera in real time.",
+    "expectedItems": ["Raspberry Pi 4"],
+    "acceptableItems": [],
+    "rationale": "Image classification needs Linux + Python libs; only RPi qualifies. Catalog has no camera — should be flagged."
+  },
+  {
+    "id": "solar_outdoor_logger",
+    "description": "Outdoor data logger that records temperature once an hour and runs entirely from a small solar panel.",
+    "expectedItems": ["Arduino Uno R3", "DHT22 sensor", "MicroSD card breakout", "Solar panel 6V 1W", "18650 battery pack", "LM2596 buck converter"],
+    "acceptableItems": ["BME280 sensor", "ESP32 dev board"]
+  },
+  {
+    "id": "smart_relay",
+    "description": "WiFi-controlled smart switch to turn a lamp on or off from my phone.",
+    "expectedItems": ["ESP32 dev board", "Relay module 5V"],
+    "acceptableItems": ["Breadboard (830 tie-points)"]
+  },
+  {
+    "id": "pan_tilt_camera_mount",
+    "description": "Pan-tilt camera mount controlled by two small servos.",
+    "expectedItems": ["Arduino Uno R3", "SG90 micro servo"],
+    "acceptableItems": ["ESP32 dev board"],
+    "rationale": "Should recommend SG90 micro servo with quantity 2."
+  },
+  {
+    "id": "obstacle_avoiding_robot",
+    "description": "A small robot car that drives forward and turns away from obstacles using ultrasonic distance sensing.",
+    "expectedItems": ["Arduino Uno R3", "HC-SR04 ultrasonic distance sensor", "18650 battery pack"],
+    "acceptableItems": ["LM2596 buck converter", "Breadboard (830 tie-points)", "SG90 micro servo"],
+    "rationale": "Catalog has no DC motor or motor driver — gap should be flagged."
+  },
+  {
+    "id": "iot_thermometer",
+    "description": "Send my room temperature to a cloud dashboard every five minutes via WiFi.",
+    "expectedItems": ["ESP32 dev board", "DHT22 sensor"],
+    "acceptableItems": ["BME280 sensor", "Breadboard (830 tie-points)"]
+  },
+  {
+    "id": "lcd_message_board",
+    "description": "Programmable message board that displays text on a 16x2 character LCD.",
+    "expectedItems": ["Arduino Uno R3", "16x2 character LCD"],
+    "acceptableItems": ["ESP32 dev board"]
+  },
+  {
+    "id": "presence_lighting",
+    "description": "Hallway light that turns on automatically when someone walks past at night.",
+    "expectedItems": ["Arduino Uno R3", "PIR motion sensor", "Relay module 5V"],
+    "acceptableItems": ["NeoPixel ring (16 LED)", "Breadboard (830 tie-points)", "ESP32 dev board"]
+  },
+  {
+    "id": "rgb_desk_decoration",
+    "description": "Desk decoration with animated rainbow LED lighting.",
+    "expectedItems": ["Arduino Uno R3", "NeoPixel ring (16 LED)"],
+    "acceptableItems": ["ESP32 dev board"]
+  },
+  {
+    "id": "remote_logger_no_wifi",
+    "description": "Logger for a remote location with no WiFi available. Records temperature and humidity to SD card for two weeks on battery.",
+    "expectedItems": ["Arduino Uno R3", "DHT22 sensor", "MicroSD card breakout", "18650 battery pack"],
+    "acceptableItems": ["BME280 sensor", "LM2596 buck converter"],
+    "rationale": "No-WiFi requirement → Arduino is fine; ESP32 not needed."
+  },
+  {
+    "id": "step_counter",
+    "description": "Simple wearable step counter using accelerometer data shown on a small screen.",
+    "expectedItems": ["Arduino Uno R3", "MPU6050 IMU", "SSD1306 OLED display", "18650 battery pack"],
+    "acceptableItems": ["ESP32 dev board", "LM2596 buck converter"]
+  },
+  {
+    "id": "garage_door_logger",
+    "description": "Records when my garage door opens and closes using a motion sensor, saves timestamps to SD card.",
+    "expectedItems": ["Arduino Uno R3", "PIR motion sensor", "MicroSD card breakout"],
+    "acceptableItems": ["ESP32 dev board", "Breadboard (830 tie-points)"]
+  },
+  {
+    "id": "robot_arm_two_joints",
+    "description": "Tiny two-joint robot arm controlled by servos, with manual buttons.",
+    "expectedItems": ["Arduino Uno R3", "SG90 micro servo"],
+    "acceptableItems": ["ESP32 dev board", "Breadboard (830 tie-points)"]
+  },
+  {
+    "id": "homelab_dashboard",
+    "description": "Linux home server that runs a small web dashboard showing my house's IoT sensor data.",
+    "expectedItems": ["Raspberry Pi 4"],
+    "acceptableItems": []
+  },
+  {
+    "id": "beginner_button_led",
+    "description": "Beginner project: a button that lights up a single LED and beeps. Nothing more.",
+    "expectedItems": ["Arduino Uno R3"],
+    "acceptableItems": ["Breadboard (830 tie-points)"]
+  },
+  {
+    "id": "outdoor_solar_neopixel",
+    "description": "Outdoor decorative ring of color-changing LEDs powered by a solar panel.",
+    "expectedItems": ["Arduino Uno R3", "NeoPixel ring (16 LED)", "Solar panel 6V 1W", "18650 battery pack"],
+    "acceptableItems": ["LM2596 buck converter", "ESP32 dev board"]
+  },
+  {
+    "id": "distance_lcd_meter",
+    "description": "Show a real-time distance reading from an ultrasonic sensor on a small character display.",
+    "expectedItems": ["Arduino Uno R3", "HC-SR04 ultrasonic distance sensor", "16x2 character LCD"],
+    "acceptableItems": ["SSD1306 OLED display", "ESP32 dev board"]
+  }
+]

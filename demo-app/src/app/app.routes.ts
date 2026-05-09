@@ -57,6 +57,14 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'student/assistant',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/project-assistant/project-assistant-page.component').then(
+        (m) => m.ProjectAssistantPageComponent,
+      ),
+  },
+  {
     path: 'error',
     loadComponent: () =>
       import('./features/not-found/not-found-page.component').then(

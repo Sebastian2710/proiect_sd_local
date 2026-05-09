@@ -16,7 +16,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatToolbar } from '@angular/material/toolbar';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import {
   StudentLoanRequestDialogComponent,
@@ -40,6 +40,7 @@ import { EquipmentStore, SortOption, StockFilter } from '../equipment/equipment.
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    RouterLink,
   ],
   templateUrl: './student-dashboard-page.component.html',
   styleUrl: './student-dashboard-page.component.scss',

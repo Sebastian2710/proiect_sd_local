@@ -59,4 +59,9 @@ public class EquipmentService {
     public void deleteEquipment(UUID id) {
         equipmentRepository.deleteById(id);
     }
+
+    public List<Equipment> addMultipleEquipment(List<Equipment> equipmentList) {
+        // saveAll() is built into Spring Data repositories and takes a List
+        return equipmentRepository.saveAll(equipmentList);
+    }
 }

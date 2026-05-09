@@ -4,6 +4,7 @@ import com.andrei.demo.config.ValidationException;
 import com.andrei.demo.model.Equipment;
 import com.andrei.demo.service.EquipmentService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
@@ -50,5 +51,10 @@ public class EquipmentController {
     @DeleteMapping("/{id}")
     public void deleteEquipment(@PathVariable UUID id) {
         equipmentService.deleteEquipment(id);
+    }
+
+    @PostMapping("/bulk")
+    public List<Equipment> addMultipleEquipment(@Valid @RequestBody List<Equipment> equipmentList) {
+        return equipmentService.addMultipleEquipment(equipmentList);
     }
 }

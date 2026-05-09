@@ -1,0 +1,135 @@
+.result-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.result-header {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.plan-card,
+.items-card {
+  padding: 8px;
+}
+
+.markdown-body {
+  line-height: 1.6;
+  color: #333;
+
+  h1, h2, h3, h4 {
+    margin-top: 1.2em;
+    margin-bottom: 0.5em;
+    font-weight: 600;
+  }
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.25rem; }
+  h3 { font-size: 1.1rem; }
+  h4 { font-size: 1rem; }
+
+  p {
+    margin: 0.5em 0;
+  }
+
+  ul, ol {
+    padding-left: 1.5em;
+    margin: 0.5em 0;
+  }
+
+  li {
+    margin: 0.25em 0;
+  }
+
+  code {
+    background: #f5f5f5;
+    padding: 0.1em 0.3em;
+    border-radius: 3px;
+    font-size: 0.9em;
+  }
+
+  pre {
+    background: #f5f5f5;
+    padding: 12px;
+    border-radius: 4px;
+    overflow-x: auto;
+  }
+
+  strong { font-weight: 600; }
+  em { font-style: italic; }
+}
+
+.items-table {
+  width: 100%;
+}
+
+.qty-field {
+  width: 80px;
+}
+
+.reason-cell {
+  max-width: 360px;
+  white-space: normal;
+  color: #555;
+  font-size: 0.875rem;
+}
+
+.unmatched-cell {
+  font-style: italic;
+  color: #b71c1c;
+}
+
+.empty-state {
+  margin: 24px 0;
+  text-align: center;
+  color: #666;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  padding: 16px;
+}
+
+.error-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background-color: #fdecea;
+  border: 1px solid #f44336;
+  border-radius: 4px;
+  color: #b71c1c;
+  font-weight: 500;
+}
+
+.availability {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+
+  &.availability-available {
+    background: #e8f5e9;
+    color: #2e7d32;
+  }
+
+  &.availability-insufficient_stock {
+    background: #fff8e1;
+    color: #f57f17;
+  }
+
+  &.availability-out_of_stock {
+    background: #fdecea;
+    color: #b71c1c;
+  }
+
+  &.availability-unmatched {
+    background: #f5f5f5;
+    color: #555;
+  }
+}

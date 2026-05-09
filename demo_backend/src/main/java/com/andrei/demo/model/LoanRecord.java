@@ -27,6 +27,8 @@ public class LoanRecord {
 
     private LocalDate actualReturnDate;
 
+    private Boolean returned=false;
+
     @Column(nullable = false)
     private String status;
 

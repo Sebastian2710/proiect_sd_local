@@ -1,0 +1,88 @@
+<mat-toolbar color="primary" class="page-toolbar">
+  <a mat-button routerLink="/student" aria-label="Back to dashboard">
+    <mat-icon aria-hidden="true">arrow_back</mat-icon>
+    Dashboard
+  </a>
+  <span class="toolbar-title">Project Assistant</span>
+  <span class="toolbar-spacer" aria-hidden="true"></span>
+  <button mat-button type="button" (click)="logout()" aria-label="Sign out">
+    <mat-icon aria-hidden="true">logout</mat-icon>
+    Logout
+  </button>
+</mat-toolbar>
+
+<main class="content">
+  @if (session(); as currentSession) {
+    <app-recommendation-result
+      [session]="currentSession"
+      (submitted)="onSessionSubmitted()"
+      (resetRequested)="resetForm()" />
+  } @else {
+    <mat-card class="form-card">
+      <mat-card-header>
+        <mat-card-title>Plan a Project</mat-card-title>
+        <mat-card-subtitle>
+          Describe what you want to build and pick a return date. The assistant will recommend
+          equipment from the catalog.
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        @if (errorMessage()) {
+          <div class="error-alert" role="alert" aria-live="assertive">
+            <mat-icon aria-hidden="true">error_outline</mat-icon>
+            {{ errorMessage() }}
+          </div>
+        }
+
+        <form [formGroup]="form" (ngSubmit)="submit()" class="assistant-form">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Project description</mat-label>
+            <textarea
+              matInput
+              rows="8"
+              formControlName="description"
+              maxlength="5000"
+              placeholder="e.g. A portable weather station that logs to SD card and uploads via WiFi."
+            ></textarea>
+            <mat-hint align="end">
+              {{ form.controls.description.value.length }} / 5000
+            </mat-hint>
+            @if (form.get("description")?.touched && form.controls.description.invalid) {
+              <mat-error>Description must be 10–5000 characters.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="date-field">
+            <mat-label>Expected return date</mat-label>
+            <input
+              matInput
+              [matDatepicker]="picker"
+              [min]="minDate"
+              formControlName="expectedReturnDate"
+            />
+            <mat-datepicker-toggle matIconSuffix [for]="picker" />
+            <mat-datepicker #picker />
+            @if (
+              form.get("expectedReturnDate")?.touched &&
+              form.controls.expectedReturnDate.invalid
+              ) {
+              <mat-error>Pick a date in the future.</mat-error>
+            }
+          </mat-form-field>
+
+          <button
+            mat-flat-button
+            color="primary"
+            type="submit"
+            [disabled]="isLoading()"
+            class="submit-button"
+          >
+            <mat-icon aria-hidden="true">auto_awesome</mat-icon>
+            {{ isLoading() ? 'Generating plan…' : 'Create Plan' }}
+          </button>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+</main>

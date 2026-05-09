@@ -24,7 +24,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     // Any authenticated user (student or admin) may access these
     private static final Set<String> STUDENT_ALLOWED_PREFIXES =
-            Set.of("/loan/my", "/loan/request");
+            Set.of("/loan/my", "/loan/request", "/assistant/recommend");
 
     // Admin-only prefixes (checked last)
     private static final Set<String> ADMIN_ONLY_PREFIXES =

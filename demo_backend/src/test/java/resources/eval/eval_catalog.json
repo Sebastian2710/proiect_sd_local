@@ -1,0 +1,22 @@
+[
+  {"name": "Arduino Uno R3", "description": "Classic 8-bit microcontroller, 5V, USB-B", "stockCount": 8},
+  {"name": "ESP32 dev board", "description": "WiFi+BLE microcontroller, 5V via USB-C, 3.3V logic", "stockCount": 6},
+  {"name": "Raspberry Pi 4", "description": "Linux SBC, 4GB RAM, USB and HDMI, MicroSD boot", "stockCount": 3},
+  {"name": "BME280 sensor", "description": "Combined temperature, humidity, pressure I2C sensor, 3.3V", "stockCount": 10},
+  {"name": "DHT22 sensor", "description": "Digital temperature and humidity sensor, simple single-pin protocol", "stockCount": 12},
+  {"name": "HC-SR04 ultrasonic distance sensor", "description": "Ultrasonic ranging, 2cm-4m, 5V", "stockCount": 10},
+  {"name": "MPU6050 IMU", "description": "6-axis accelerometer + gyroscope, I2C, 3.3V/5V", "stockCount": 8},
+  {"name": "PIR motion sensor", "description": "Passive infrared motion detector with adjustable sensitivity, 5V", "stockCount": 12},
+  {"name": "SG90 micro servo", "description": "9g micro servo motor, 4.8V, ~180 degree rotation", "stockCount": 15},
+  {"name": "NEMA 17 stepper motor", "description": "1.8 degree per step bipolar stepper motor", "stockCount": 5},
+  {"name": "A4988 stepper driver", "description": "Microstepping stepper motor driver for NEMA 17, requires heatsink", "stockCount": 6},
+  {"name": "MicroSD card breakout", "description": "SPI MicroSD card slot breakout, 3.3V (no card included)", "stockCount": 8},
+  {"name": "SSD1306 OLED display", "description": "0.96 inch monochrome OLED, 128x64, I2C, 3.3V", "stockCount": 10},
+  {"name": "16x2 character LCD", "description": "HD44780-compatible 16-column 2-row character display, parallel interface, 5V", "stockCount": 8},
+  {"name": "NeoPixel ring (16 LED)", "description": "16-pixel addressable RGB LED ring (WS2812B), 5V", "stockCount": 6},
+  {"name": "18650 battery pack", "description": "2x 18650 Li-ion cells in series, 7.4V nominal, with built-in protection circuit", "stockCount": 4},
+  {"name": "Solar panel 6V 1W", "description": "Small photovoltaic panel for outdoor projects, 6V open circuit, 1W peak", "stockCount": 5},
+  {"name": "LM2596 buck converter", "description": "Adjustable DC-DC step-down converter module, 1.2-35V output", "stockCount": 7},
+  {"name": "Breadboard (830 tie-points)", "description": "Standard solderless breadboard, 830 tie-points", "stockCount": 15},
+  {"name": "Relay module 5V", "description": "Single-channel 5V relay module with optoisolation", "stockCount": 8}
+]

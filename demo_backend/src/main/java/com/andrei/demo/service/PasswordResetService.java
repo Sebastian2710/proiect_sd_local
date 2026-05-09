@@ -26,7 +26,8 @@ public class PasswordResetService {
 
     // email -> [code, expiresAt]
     private final ConcurrentHashMap<String, ResetEntry> pendingResets = new ConcurrentHashMap<>();
-
+    //concurrenthashmap  - risc sa pierd tot din cauza la un crash
+    // adauga in baza de date - tabel extra
     public void requestReset(String email) throws ValidationException {
         personRepository.findByEmail(email)
                 .orElseThrow(() -> new ValidationException("No account found with email: " + email));
